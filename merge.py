@@ -23,7 +23,7 @@ os.system("mkdir " + folder)
 
 for category in categories:
 	for subcat in categories[category]:
-		with open(folder + "/" + category + "-" + subcat + ".txt", "w") as outFile:
+		with open(folder + "/" + category + "-" + subcat + "_ids.txt", "w") as outFile:
 			print "merging files for " + category + "/" + subcat + "..."
 			for n in xrange(categories[category][subcat]):
 				filename = "previous-data/" + category + "/twitter_" + category + "_" + subcat + "_2014-03-01_2014-05-31_tweetids_" + str(n) + ".txt"
