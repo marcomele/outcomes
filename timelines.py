@@ -3,6 +3,7 @@ try:
 except ImportError:
 	import simplejson as json
 from twitter import *
+import time
 try:
 	from urllib.parse import parse_qs
 except ImportError:
@@ -36,33 +37,51 @@ if __name__ == '__main__':
 	# categories
 	categories = {
 		"health" : {
-			"diseases" : 4,
-			"mental" : 45,
-			"pharmacy" : 3
+			"diseases" : 0,
+			"mental" : 0,
+			"pharmacy" : 0
 		},
 		"society" : {
-			"issues" : 1,
-			"law" : 9,
-			"relationships" : 2
+			"issues" : 0,
+			"law" : 0,
+			"relationships" : 0
 		},
 		"business" : {
-			"construction-and-maintenance" : 1,
-			"financial-services" : 4,
-			"investing" : 76
+			"construction-and-maintenance" : 0,
+			"financial-services" : 0,
+			"investing" : 0
 		}
 	}
 
 	api = tweepy.API(auth)
-	for category in categories:
-		print "*********** " + category + "****************"
-		for subcat in category:
-			print "retrieving user ids for " + category + "/" + subcat + "..."
-			filename = "mergedData/" + category + "-" + subcat + "_ids.txt"
-			with open(filename, "r") as inputFile:
-				for tweetID in inputFile:
+
+	#for category in categories:
+	category = "society"
+	#print "*********** " + category + "****************"
+	#for subcat in categories[category]:
+	subcat = "issues"
+	#print "retrieving user ids for " + category + "/" + subcat + "..."
+	filename = "mergedData/" + category + "-" + subcat + "_ids.txt"
+	with open(filename, "r") as inputFile:
+		for tweetID in inputFile:
+			while True:
+				try:
+					#print tweetID + "does exist"
 					status = api.get_status(tweetID)
-					userID = json.loads(json.dups(status._json))["user"]["id_str"]
-					print userID
+					with open("output", "a") as outputFile:
+						outputFile.write(str(json.loads(json.dumps(status._json))))
+						print tweetID
+						break
+				except tweepy.RateLimitError as r:
+					print "rate limit reached, waiting..."
+					time.sleep(60)
+				except tweepy.TweepError as e:
+					print e
+					categories[category][subcat] += 1
+					break
+	print categories[category][subcat]
+					#userID = json.loads(json.dups(status._json))["user"]["id_str"]
+					#print userID
 
 	#status = api.get_status(911994120658239488)
 	#jstat = json.loads(json.dumps(status._json))
