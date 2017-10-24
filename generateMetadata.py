@@ -18,57 +18,48 @@ def printKey(dictionary, key, depth = 0):
 # 		for key in dictionary:
 # 			printKey(dictionary, key)
 
-categories = {
-		"business" : {
-			"construction" : {
-				"count" : 0,
-				"unauthorized" : 0,
-				"status-not-found" : 0,
-				"internal-error" : 0,
-				"over-capacity" : 0,
-				"page-not-exists" : 0,
-				"user-suspended" : 0,
-				"connection-timed-out" : 0,
-				"total" : 0
-		}},
-		"society" : {
-			"issues" : {
-				"count" : 0,
-				"unauthorized" : 0,
-				"status-not-found" : 0,
-				"internal-error" : 0,
-				"over-capacity" : 0,
-				"page-not-exists" : 0,
-				"user-suspended" : 0,
-				"connection-timed-out" : 0,
-				"total" : 0
-		}}
-	}
-
 # parse nohup files and create metadata and dictionary
-for category in categories:
-	for subcategory in categories[category]:
-		nohupfile = "data/" + category + "-" + subcategory + "/nohup.out"
-		with open(nohupfile, "rU") as nohup:
-			for record in nohup:
-				if record and not "rate limit reached, waiting..." in record:
-					if "u'code': 179" in record:
-						categories[category][subcategory]["unauthorized"] += 1
-					elif "u'code': 144" in record:
-						categories[category][subcategory]["status-not-found"] += 1
-					elif "u'code': 131" in record:
-						categories[category][subcategory]["internal-error"] +=1
-					elif "u'code': 130" in record:
-						categories[category][subcategory]["over-capacity"] += 1
-					elif "u'code': 34" in record:
-						categories[category][subcategory]["page-not-exists"] += 1
-					elif "u'code': 63" in record:
-						categories[category][subcategory]["user-suspended"] += 1
-					elif "api.twitter.com timed out" in record:
-						categories[category][subcategory]["connection-timed-out"] += 1
-					elif int(record):
-						categories[category][subcategory]["count"] += 1
-					categories[category][subcategory]["total"] -= 1
-			assert not sum(int(categories[category][subcategory][key]) for key in categories[category][subcategory])
-			categories[category][subcategory]["total"] *= -1
-pprint(categories)
+for [category, subcategory] in [["business", "construction"], ["society", "issues"]]:
+	metadata = {
+		"count" : 0,
+		"unauthorized" : 0,
+		"status-not-found" : 0,
+		"internal-error" : 0,
+		"over-capacity" : 0,
+		"page-not-exists" : 0,
+		"user-suspended" : 0,
+		"connection-timed-out" : 0,
+		"total" : 0
+	}
+	directory = "data/" + category + "-" + subcategory + "/"
+	nohupfile =  directory + "/nohup.out"
+	with open(nohupfile, "rU") as nohup:
+		for record in nohup:
+			if record and not "rate limit reached, waiting..." in record:
+				if "u'code': 179" in record:
+					metadata["unauthorized"] += 1
+				elif "u'code': 144" in record:
+					metadata["status-not-found"] += 1
+				elif "u'code': 131" in record:
+					metadata["internal-error"] +=1
+				elif "u'code': 130" in record:
+					metadata["over-capacity"] += 1
+				elif "u'code': 34" in record:
+					metadata["page-not-exists"] += 1
+				elif "u'code': 63" in record:
+					metadata["user-suspended"] += 1
+				elif "api.twitter.com timed out" in record:
+					metadata["connection-timed-out"] += 1
+				elif int(record):
+					metadata["count"] += 1
+				metadata["total"] -= 1
+		assert not sum(int(metadata[key]) for key in metadata)
+		metadata["total"] *= -1
+	total = metadata["total"]
+	for key in metadata:
+		count = metadata[key]
+		metadata[key] = {"count" : count, "percent" : str(round(100 * float(count) / total, 2)) + "%"}
+	outfile = directory + "/metadata"
+	with open(outfile, "w") as out:
+		out.write(str(metadata))
+	print "metadata saved in " + outfile
