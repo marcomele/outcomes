@@ -56,10 +56,10 @@ if __name__ == '__main__':
 	api = tweepy.API(auth)
 
 	#for category in categories:
-	category = "society"
+	category = "health"
 	#print "*********** " + category + "****************"
 	#for subcat in categories[category]:
-	subcat = "issues"
+	subcat = "pharmacy"
 	#print "retrieving user ids for " + category + "/" + subcat + "..."
 	filename = "mergedData/" + category + "-" + subcat + "_ids.txt"
 	with open(filename, "r") as inputFile:
@@ -70,8 +70,8 @@ if __name__ == '__main__':
 					status = api.get_status(tweetID)
 					with open("output", "a") as outputFile:
 						outputFile.write(str(json.loads(json.dumps(status._json))))
-						print tweetID
-						break
+					print tweetID
+					break
 				except tweepy.RateLimitError as r:
 					print "rate limit reached, waiting..."
 					time.sleep(60)
