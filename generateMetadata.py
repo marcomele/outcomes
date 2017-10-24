@@ -56,7 +56,7 @@ for category in categories:
 						categories[category][subcategory]["unauthorized"] += 1
 					elif "u'code': 144" in record:
 						categories[category][subcategory]["status-not-found"] += 1
-					elif "u'code' : 131" in record:
+					elif "u'code': 131" in record:
 						categories[category][subcategory]["internal-error"] +=1
 					elif "u'code': 130" in record:
 						categories[category][subcategory]["over-capacity"] += 1
