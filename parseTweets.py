@@ -29,12 +29,10 @@ subcategory = "issues"
 with open("data/" + category + "-" + subcategory + "/output") as sampleOutput:
 	for line in sampleOutput:
 		for literal in getOneTweet(line):
-			print literal[:10]
-
-		continue
-		try:
-			dictionary = ast.literal_eval(line)
-			for key in dictionary:
-				printKey(dictionary, key)
-		except SyntaxError:
-			print "bad formatted file --- all dictionaries must be newline separatad"
+			print literal[:20] + literal[-20:]
+			try:
+				tweet = ast.literal_eval(literal)
+				#print tweet["text"]
+			except SyntaxError:
+				print "bad formatted file --- all dictionaries must be newline separatad"
+			break
