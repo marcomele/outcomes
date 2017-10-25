@@ -5,6 +5,7 @@ except ImportError:
 import ast
 import re
 from pprint import pprint
+from threading import Thread, Lock
 
 def printKey(dictionary, key, depth = 0):
 	print "\t" * depth + key
@@ -25,10 +26,10 @@ def getOneTweet(line):
 category = "society"
 subcategory = "issues"
 
-with open("data/sampleOutput") as sampleOutput:
+with open("data/" + category + "-" + subcategory + "/output") as sampleOutput:
 	for line in sampleOutput:
 		for literal in getOneTweet(line):
-			print literal
+			print literal[:10]
 
 		continue
 		try:
