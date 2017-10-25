@@ -5,7 +5,10 @@ except ImportError:
 import ast
 import re
 from pprint import pprint
-from threading import Thread, Lock
+from threading import Thread
+import time
+import random
+from Queue import Queue
 
 def printKey(dictionary, key, depth = 0):
 	print "\t" * depth + key
@@ -13,28 +16,42 @@ def printKey(dictionary, key, depth = 0):
 		for subkey in dictionary[key]:
 			printKey(dictionary[key], subkey, depth + 1)
 
-def getOneTweet(line):
-	while True:
-		try:
-			[first, reminder] = line.split("}{", 1)
-			yield first + "}"
-			line = "{" + reminder
-		except ValueError:
-			yield line
-			break
-
 category = "society"
 subcategory = "issues"
+rawFileName = "data/" + category + "-" + subcategory + "/output"
+queue = Queue()
+produced = 0
+consumed = 0
 
-with open("data/" + category + "-" + subcategory + "/output") as sampleOutput:
-	for line in sampleOutput:
-		for literal in getOneTweet(line):
+class ProducerThread(Thread):
+	def getOneTweet(Thread, line):
+		while True:
+			try:
+				[first, reminder] = line.split("}{", 1)
+				yield first + "}"
+				line = "{" + reminder
+			except ValueError:
+				yield line
+				break
+	def run(self):
+		global rawFileName
+		global queue
+		global produced
+		with open(rawFileName, "r") as rawFile:
+			for line in rawFile:
+				for literal in ProducerThread.getOneTweet(self, line):
+					queue.put(literal)
+					produced += 1
+
+class ConsumerThread(Thread):
+	def run(self):
+		global queue
+		global consumed
+		while True:
+			literal = queue.get()
+			consumed += 1
 			print literal[:10]
+			queue.task_done()
 
-		continue
-		try:
-			dictionary = ast.literal_eval(line)
-			for key in dictionary:
-				printKey(dictionary, key)
-		except SyntaxError:
-			print "bad formatted file --- all dictionaries must be newline separatad"
+ProducerThread().start()
+ConsumerThread().start()
