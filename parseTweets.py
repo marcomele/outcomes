@@ -5,7 +5,8 @@ except ImportError:
 import ast
 import re
 from pprint import pprint
-from threading import Thread, Lock
+import sys
+import shelve
 
 def printKey(dictionary, key, depth = 0):
 	print "\t" * depth + key
@@ -22,17 +23,28 @@ def getOneTweet(line):
 		except ValueError:
 			yield line
 			break
-
-category = "society"
-subcategory = "issues"
-
-with open("data/" + category + "-" + subcategory + "/output") as sampleOutput:
-	for line in sampleOutput:
-		for literal in getOneTweet(line):
-			print literal[:20] + literal[-20:]
-			try:
-				tweet = ast.literal_eval(literal)
-				#print tweet["text"]
-			except SyntaxError:
-				print "bad formatted file --- all dictionaries must be newline separatad"
-			break
+try:
+	category = sys.argv[1]
+	subcategory = sys.argv[2]
+except IndexError:
+	print "arguments missing"
+	exit()
+count = 0
+with open("data/" + category + "-" + subcategory + "/formatted", "w") as formattedOutput:
+	with open("data/" + category + "-" + subcategory + "/output", "r") as sampleOutput:
+		for line in sampleOutput:
+			for literal in getOneTweet(line):
+				try:
+					rawTweet = ast.literal_eval(literal)
+					tweet = {
+						"text" : rawTweet["text"],
+						"id" : rawTweet["id"],
+						"entities" : rawTweet["entities"],
+						"user" : rawTweet["user"]["id"],
+						"created_at" : rawTweet["created_at"]
+						}
+					formattedOutput.write(str(tweet) + "\n")
+					count += 1
+					sys.stderr.write("\rprogress: " + str(count))
+				except SyntaxError:
+					print "bad formatted file --- all dictionaries must be newline separatad"
