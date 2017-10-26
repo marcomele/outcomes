@@ -20,7 +20,6 @@ def printKey(dictionary, key, depth = 0):
 
 def process(tweet):
 	tweet["created_at"] = str(parse(tweet["created_at"]).astimezone(tzutc()))
-	del tweet["entities"]
 	return tweet
 
 try:
