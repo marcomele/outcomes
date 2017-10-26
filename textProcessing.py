@@ -12,7 +12,7 @@ import re
 import sys
 import time
 import os
-import nltk, re, pprint
+import nltk, re, pprint, string
 from nltk import word_tokenize
 from nltk.tokenize import WordPunctTokenizer
 from nltk.stem.porter import PorterStemmer
@@ -44,10 +44,14 @@ with open("sampleTweet", "r") as sampleTweet:
 		print "**** not ents ****"
 		tweet["text"] = re.sub(r'\&\S+;', '', tweet["text"])
 		print tweet["text"]
+		print "**** no punct ****"
+		regex = re.compile('[%s]' % re.escape(string.punctuation))
+		text = regex.sub('', tweet["text"])
+		print text
 		print "**** lemmatiz ****"
 		# get all tokens
 		word_punct_tokenizer = WordPunctTokenizer()
-		tokens = word_punct_tokenizer.tokenize(tweet["text"])
+		tokens = word_punct_tokenizer.tokenize(text)
 		lem = WordNetLemmatizer()
 		ps = PorterStemmer()
 		words = [lem.lemmatize(ps.stem(w.lower())) for w in tokens]
