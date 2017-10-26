@@ -32,7 +32,7 @@ def spell(word):
 	max_dist = 5
 	if spell_dict.check(word):
 		return word
-	suggestions = spell_dict.suggest(word)
+	suggestions = sorted(spell_dict.suggest(word), key=lambda sugg: edit_distance(sugg, word))
 	if suggestions and edit_distance(word, suggestions[0]) <= max_dist:
 		return suggestions[0]
 	return word
@@ -84,6 +84,6 @@ with open("sampleTweet", "r") as sampleTweet:
 		print "**** spellchk ****"
 		spelled = []
 		for i in xrange(len(words)):
-			spelled.append(spell(words[i]))
+			spelled.append(spell(re.sub(r'(.)\1+', r'\1\1', words[i])))
 		print spelled
 		print "******************"
