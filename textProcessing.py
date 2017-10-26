@@ -18,12 +18,24 @@ from nltk.tokenize import WordPunctTokenizer
 from nltk.stem.porter import PorterStemmer
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
+from nltk.metrics import edit_distance
+import enchant
 
 def printKey(dictionary, key, depth = 0):
 	print "\t" * depth + key
 	if isinstance(dictionary[key], dict):
 		for subkey in dictionary[key]:
 			printKey(dictionary[key], subkey, depth + 1)
+
+def spell(word):
+	spell_dict = enchant.Dict('en_US')
+	max_dist = 5
+	if spell_dict.check(word):
+		return word
+	suggestions = spell_dict.suggest(word)
+	if suggestions and edit_distance(word, suggestions[0]) <= max_dist:
+		return suggestions[0]
+	return word
 
 #try:
 #	category = sys.argv[1]
@@ -64,9 +76,14 @@ with open("sampleTweet", "r") as sampleTweet:
 		tokens = word_punct_tokenizer.tokenize(text)
 		lem = WordNetLemmatizer()
 		ps = PorterStemmer()
-		words = [lem.lemmatize(ps.stem(w.lower())) for w in tokens]
+		words = [lem.lemmatize(w.lower()) for w in tokens] # [lem.lemmatize(ps.stem(w.lower())) for w in tokens]
 		print words
 		print "**** stopwrds ****"
 		words = list(filter(lambda word: word not in stopwords.words('english'), words))
 		print words
+		print "**** spellchk ****"
+		spelled = []
+		for i in xrange(len(words)):
+			spelled.append(spell(words[i]))
+		print spelled
 		print "******************"
