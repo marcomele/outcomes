@@ -38,10 +38,20 @@ with open("sampleTweet", "r") as sampleTweet:
 		tweet = json.loads(line)
 		print "**** original ****"
 		print tweet["text"]
-		print "**** not urls ****"
-		tweet["text"] = re.sub(r'http\S+', '', tweet["text"])
+		# print "**** not urls ****"
+		# tweet["text"] = re.sub(r'http\S+', '', tweet["text"])
+		print "**** no entis ****"
+		for entityType in tweet["entities"]:
+			if entityType == "user_mentions":
+				for i in xrange(len(tweet["entities"][entityType])):
+					tweet["text"] = tweet["text"].replace(tweet["entities"][entityType][i]["screen_name"], '')
+			elif entityType == "urls":
+				for i in xrange(len(tweet["entities"][entityType])):
+					for both in ["url", "expanded_url"]:
+						tweet["text"] = tweet["text"].replace(tweet["entities"][entityType][i][both], '')
+		tweet["text"] = tweet["text"].replace("#", '')
 		print tweet["text"]
-		print "**** not ents ****"
+		print "**** no html& ****"
 		tweet["text"] = re.sub(r'\&\S+;', '', tweet["text"])
 		print tweet["text"]
 		print "**** no punct ****"
