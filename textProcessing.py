@@ -32,8 +32,7 @@ def sameletters(s1, s2):
 	s2 = re.sub(r'(.)\1+', r'\1', s2)
 	return s1 == s2
 
-def spell(word):
-	word = str(word)
+def asciiSpell(word):
 	spell_dict = enchant.Dict('en_US')
 	max_dist = 2
 	if spell_dict.check(word):
@@ -43,14 +42,19 @@ def spell(word):
 		return suggestions[0]
 	return word
 
+def spell(words):
+	spelled = []
+	for word in words:
+		try:
+			spelled.append(asciiSpell(re.sub(r'(.)\1+', r'\1\1', str(word))))
+		except UnicodeEncodeError:
+			pass
+	return spelled
+
 with open("sampleTweet", "r") as sampleTweet:
 	for line in sampleTweet:
 		tweet = json.loads(line)
-		print "**** original ****"
-		print tweet["text"]
-		# print "**** not urls ****"
-		# tweet["text"] = re.sub(r'http\S+', '', tweet["text"])
-		print "**** no entis ****"
+		tweet["text"] = re.sub(r'http\S+', '', tweet["text"])
 		for entityType in tweet["entities"]:
 			if entityType == "user_mentions":
 				for i in xrange(len(tweet["entities"][entityType])):
@@ -60,28 +64,14 @@ with open("sampleTweet", "r") as sampleTweet:
 					for both in ["url", "expanded_url"]:
 						tweet["text"] = tweet["text"].replace(tweet["entities"][entityType][i][both], '')
 		tweet["text"] = tweet["text"].replace("#", '')
-		print tweet["text"]
-		print "**** no html& ****"
 		tweet["text"] = re.sub(r'\&\S+;', '', tweet["text"])
-		print tweet["text"]
-		print "**** no punct ****"
 		regex = re.compile('[%s]' % re.escape(string.punctuation))
 		text = regex.sub(' ', tweet["text"])
-		print text
-		print "**** lemmatiz ****"
 		# get all tokens
 		word_punct_tokenizer = WordPunctTokenizer()
 		tokens = word_punct_tokenizer.tokenize(text)
 		lem = WordNetLemmatizer()
 		ps = PorterStemmer()
 		words = [lem.lemmatize(w.lower()) for w in tokens] # [lem.lemmatize(ps.stem(w.lower())) for w in tokens]
-		print words
-		print "**** stopwrds ****"
 		words = list(filter(lambda word: word not in stopwords.words('english'), words))
-		print words
-		print "**** spellchk ****"
-		spelled = []
-		for i in xrange(len(words)):
-			spelled.append(spell(re.sub(r'(.)\1+', r'\1\1', words[i])))
-		print spelled
-		print "******************"
+		spelled = spell(words)
