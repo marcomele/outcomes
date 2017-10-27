@@ -27,23 +27,21 @@ def printKey(dictionary, key, depth = 0):
 		for subkey in dictionary[key]:
 			printKey(dictionary[key], subkey, depth + 1)
 
+def sameletters(s1, s2):
+	s1 = re.sub(r'(.)\1+', r'\1', s1)
+	s2 = re.sub(r'(.)\1+', r'\1', s2)
+	return s1 == s2
+
 def spell(word):
+	word = str(word)
 	spell_dict = enchant.Dict('en_US')
-	max_dist = 5
+	max_dist = 2
 	if spell_dict.check(word):
 		return word
-	suggestions = sorted(spell_dict.suggest(word), key=lambda sugg: edit_distance(sugg, word))
-	if suggestions and edit_distance(word, suggestions[0]) <= max_dist:
+	suggestions = sorted(spell_dict.suggest(word), key=lambda sugg: edit_distance(sugg, word) * 0 if sameletters(word, sugg) else 1)
+	if edit_distance(suggestions[0], word) <= max_dist:
 		return suggestions[0]
 	return word
-
-#try:
-#	category = sys.argv[1]
-#	subcategory = sys.argv[2]
-#except IndexError:
-#	print "arguments missing"
-#	exit()
-#directory = "data/" + category + "-" + subcategory
 
 with open("sampleTweet", "r") as sampleTweet:
 	for line in sampleTweet:
@@ -68,7 +66,7 @@ with open("sampleTweet", "r") as sampleTweet:
 		print tweet["text"]
 		print "**** no punct ****"
 		regex = re.compile('[%s]' % re.escape(string.punctuation))
-		text = regex.sub('', tweet["text"])
+		text = regex.sub(' ', tweet["text"])
 		print text
 		print "**** lemmatiz ****"
 		# get all tokens
