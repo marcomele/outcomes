@@ -51,27 +51,44 @@ def spell(words):
 			pass
 	return spelled
 
-with open("sampleTweet", "r") as sampleTweet:
-	for line in sampleTweet:
-		tweet = json.loads(line)
-		tweet["text"] = re.sub(r'http\S+', '', tweet["text"])
-		for entityType in tweet["entities"]:
+def removeEntities(text, entities = None):
+	text = re.sub(r'http\S+', '', text)
+	if entities is not None:
+		for entityType in entities:
 			if entityType == "user_mentions":
-				for i in xrange(len(tweet["entities"][entityType])):
-					tweet["text"] = tweet["text"].replace(tweet["entities"][entityType][i]["screen_name"], '')
+				for i in xrange(len(entities[entityType])):
+					text = text.replace(entities[entityType][i]["screen_name"], '')
 			elif entityType == "urls":
-				for i in xrange(len(tweet["entities"][entityType])):
+				for i in xrange(len(entities[entityType])):
 					for both in ["url", "expanded_url"]:
-						tweet["text"] = tweet["text"].replace(tweet["entities"][entityType][i][both], '')
-		tweet["text"] = tweet["text"].replace("#", '')
-		tweet["text"] = re.sub(r'\&\S+;', '', tweet["text"])
-		regex = re.compile('[%s]' % re.escape(string.punctuation))
-		text = regex.sub(' ', tweet["text"])
-		# get all tokens
-		word_punct_tokenizer = WordPunctTokenizer()
-		tokens = word_punct_tokenizer.tokenize(text)
-		lem = WordNetLemmatizer()
-		ps = PorterStemmer()
-		words = [lem.lemmatize(w.lower()) for w in tokens] # [lem.lemmatize(ps.stem(w.lower())) for w in tokens]
-		words = list(filter(lambda word: word not in stopwords.words('english'), words))
-		spelled = spell(words)
+						text = text.replace(entities[entityType][i][both], '')
+	text = re.sub(r'\&\S+;', '', text)
+	return text.replace("#", '')
+
+def removePunctuation(text):
+	regex = re.compile('[%s]' % re.escape(string.punctuation))
+	return regex.sub(' ', text)
+
+def lemmatize(text):
+	word_punct_tokenizer = WordPunctTokenizer()
+	tokens = word_punct_tokenizer.tokenize(text)
+	lem = WordNetLemmatizer()
+	ps = PorterStemmer()
+	return [lem.lemmatize(w.lower()) for w in tokens] # [lem.lemmatize(ps.stem(w.lower())) for w in tokens]
+
+def removeStopwords(words):
+	return list(filter(lambda word: word not in stopwords.words('english'), words))
+
+def process(tweet):
+	tweet = json.loads(tweet)
+	text = removeEntities(tweet["text"], tweet["entities"])
+	text = removePunctuation(text)
+	words = lemmatize(text)
+	words = removeStopwords(words)
+	spelled = spell(words)
+	return spelled
+
+with open("sampleTweet", "r") as sampleTweet:
+	for tweet in sampleTweet:
+		processed = process(tweet)
+		print processed
