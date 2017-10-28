@@ -81,15 +81,29 @@ def lemmatize(text):
 def removeStopwords(words):
 	return list(filter(lambda word: word not in stopwords.words('english'), words))
 
-def process(tweet):
-	tweet = json.loads(tweet)
-	text = removeEntities(tweet["text"], tweet["entities"])
+def process(text, entities):
+	text = removeEntities(text, entities)
 	text = removePunctuation(text)
 	words = lemmatize(text)
 	words = removeStopwords(words)
 	return spell(words)
 
-with open("sampleTweet", "r") as sampleTweet:
-	for tweet in sampleTweet:
-		words = process(tweet)
-		print words
+
+filecount = 1
+while True:
+	try:
+		filename = sys.argv[filecount]
+	except IndexError:
+		break
+	with open(filename + "_text", "w") as formatted:
+		with open(filename, "r") as original:
+			count = 0
+			for tweet in original:
+				tweet = json.loads(tweet)
+				text = process(tweet["text"], tweet["entities"])
+				tweet["text"] = text
+				formatted.write(json.dumps(tweet) + "\n")
+				count += 1
+				sys.stderr.write("[file " + str(filecount) + "] completed " + str(count) + "\r")
+	filecount += 1
+	print ""
