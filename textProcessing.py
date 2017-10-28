@@ -90,7 +90,6 @@ def process(tweet):
 	return spell(words)
 
 with open("sampleTweet", "r") as sampleTweet:
-
 	for tweet in sampleTweet:
 		words = process(tweet)
 		print words
