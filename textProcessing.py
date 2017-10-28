@@ -40,8 +40,11 @@ def asciiSpell(word):
 	if spell_dict.check(word):
 		return word
 	suggestions = sorted(spell_dict.suggest(word), key=lambda sugg: edit_distance(sugg, word) * 0 if sameletters(word, sugg) else 1)
-	if edit_distance(suggestions[0], word) <= max_dist:
-		return suggestions[0]
+	try:
+		if edit_distance(suggestions[0], word) <= max_dist:
+			return suggestions[0]
+	except:
+		pass
 	return word
 
 def spell(words):
