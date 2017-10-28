@@ -107,6 +107,6 @@ while True:
 				tweet["text"] = text
 				formatted.write(json.dumps(tweet) + "\n")
 				count += 1
-				sys.stderr.write("[file " + str(filecount) + "] completed " + str(count) + "\r")
+				#sys.stderr.write("[file " + str(filecount) + "] completed " + str(count) + "\r")
 	filecount += 1
-	print ""
+	#print ""
