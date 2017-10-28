@@ -20,6 +20,8 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.metrics import edit_distance
 import enchant
+import threading
+from threading import Thread
 
 def printKey(dictionary, key, depth = 0):
 	print "\t" * depth + key
@@ -43,13 +45,13 @@ def asciiSpell(word):
 	return word
 
 def spell(words):
-	spelled = []
+	wordsSpelled = []
 	for word in words:
 		try:
-			spelled.append(asciiSpell(re.sub(r'(.)\1+', r'\1\1', str(word))))
+			wordsSpelled.append(asciiSpell(re.sub(r'(.)\1+', r'\1\1', str(word))))
 		except UnicodeEncodeError:
 			pass
-	return spelled
+	return wordsSpelled
 
 def removeEntities(text, entities = None):
 	text = re.sub(r'http\S+', '', text)
@@ -85,10 +87,10 @@ def process(tweet):
 	text = removePunctuation(text)
 	words = lemmatize(text)
 	words = removeStopwords(words)
-	spelled = spell(words)
-	return spelled
+	return spell(words)
 
 with open("sampleTweet", "r") as sampleTweet:
+
 	for tweet in sampleTweet:
-		processed = process(tweet)
-		print processed
+		words = process(tweet)
+		print words
