@@ -20,8 +20,10 @@ def matchToken(words, timestamp):
 	match = 1
 	for token in tokens:
 		for unigram in token.split("_"):
-			if not unigram in words:
-				match = 0
+			match = 0
+			for word in words:
+				if word == unigram:
+					match = 1
 		timeline[token]["value"] += match
 		if match:
 			if not timeline[token]["first"]:
@@ -90,18 +92,18 @@ with open(folder + "/../firsts.csv", "w") as firsts:
 						atLeastOne = 1
 						break
 				while True and atLeastOne:
-					x = random.randrange(0, len(token), 1)
+					x = random.randrange(0, len(tokens), 1)
 					if timeline[tokens[x]]["value"]:
 						randomTime = timeline[tokens[x]]["first"]
 						break
 			firsts.write(filename)
 			for token in tokens:
-				e = 1 if timeline[token]["value"] and (timeline[token]["first"] < timeline["event"]["timestamp"] if timeline["event"]["value"] else randomTime) else 0
+				e = 1 if timeline[token]["value"] and (timeline[token]["first"] <= timeline["event"]["timestamp"] if timeline["event"]["value"] else randomTime) else 0
 				firsts.write("," + str(e))
 			firsts.write("," + (str(1) if timeline["event"]["value"] else str(0)) + "\n")
 			lasts.write(filename)
 			for token in tokens:
-				e = 1 if timeline[token]["value"] and (timeline[token]["last"] > timeline["event"]["timestamp"] if timeline["event"]["value"] else randomTime) else 0
+				e = 1 if timeline[token]["value"] and (timeline[token]["last"] >= timeline["event"]["timestamp"] if timeline["event"]["value"] else randomTime) else 0
 				lasts.write("," + str(e))
 			lasts.write("," + (str(1) if timeline["event"]["value"] else str(0)) + "\n")
 			count += 1
