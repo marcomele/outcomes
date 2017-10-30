@@ -17,14 +17,15 @@ def err(str):
 def matchToken(words, timestamp):
 	global token
 	global timeline
-	match = 1
 	for token in tokens:
+		total = 0
 		for unigram in token.split("_"):
 			match = 0
 			for word in words:
 				if word == unigram:
 					match = 1
-		timeline[token]["value"] += match
+			total += match
+		timeline[token]["value"] += total
 		if match:
 			if not timeline[token]["first"]:
 				timeline[token]["first"] = timeline[token]["last"] = timestamp
@@ -103,7 +104,7 @@ with open(folder + "/../firsts.csv", "w") as firsts:
 			firsts.write("," + (str(1) if timeline["event"]["value"] else str(0)) + "\n")
 			lasts.write(filename)
 			for token in tokens:
-				e = 1 if timeline[token]["value"] and (timeline[token]["last"] >= timeline["event"]["timestamp"] if timeline["event"]["value"] else randomTime) else 0
+				e = timeline[token]["value"] if timeline[token]["value"] and (timeline[token]["last"] >= timeline["event"]["timestamp"] if timeline["event"]["value"] else randomTime) else 0
 				lasts.write("," + str(e))
 			lasts.write("," + (str(1) if timeline["event"]["value"] else str(0)) + "\n")
 			count += 1
