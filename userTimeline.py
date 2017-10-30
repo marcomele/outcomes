@@ -25,8 +25,9 @@ def matchToken(words, timestamp):
 				if word == unigram:
 					match = 1
 			total += match
-		timeline[token]["value"] += total
-		if match:
+		if not timeline[token]["value"]:
+			timeline[token]["value"] = 1 if total == len(token.split("_")) else 0
+		if total:
 			if not timeline[token]["first"]:
 				timeline[token]["first"] = timeline[token]["last"] = timestamp
 			else:
