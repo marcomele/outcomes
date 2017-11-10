@@ -19,7 +19,7 @@ def printKey(dictionary, key, depth = 0):
 # 			printKey(dictionary, key)
 
 # parse nohup files and create metadata and dictionary
-for [category, subcategory] in [["business", "construction"], ["society", "issues"]]:
+for [category, subcategory] in [["health", "pharmacy"]]:
 	metadata = {
 		"count" : 0,
 		"unauthorized" : 0,
@@ -35,7 +35,7 @@ for [category, subcategory] in [["business", "construction"], ["society", "issue
 	nohupfile =  directory + "/nohup.out"
 	with open(nohupfile, "rU") as nohup:
 		for record in nohup:
-			if record and not "rate limit reached, waiting..." in record:
+			if record.split("\r")[0] and not "rate limit reached, waiting..." in record:
 				if "u'code': 179" in record:
 					metadata["unauthorized"] += 1
 				elif "u'code': 144" in record:
@@ -50,7 +50,7 @@ for [category, subcategory] in [["business", "construction"], ["society", "issue
 					metadata["user-suspended"] += 1
 				elif "api.twitter.com timed out" in record:
 					metadata["connection-timed-out"] += 1
-				elif int(record):
+                                elif int(record):
 					metadata["count"] += 1
 				metadata["total"] -= 1
 		assert not sum(int(metadata[key]) for key in metadata)
