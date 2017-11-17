@@ -69,8 +69,8 @@ if __name__ == '__main__':
 				while True:
 					try:
 						followings, followers = api.friends_ids(id=user), api.followers_ids(id=user)
-						outfollowing.write(user + "\t" + ",".join(followings) + "\n")
-						outfollowers.write(user + "\t" + ",".join(followers) + "\n")
+						outfollowing.write(user + "\t" + ",".join(list(str(following) for following in followings)) + "\n")
+						outfollowers.write(user + "\t" + ",".join(list(str(follower) for follower in followers)) + "\n")
 						showProgress(progress, count)
 						break
 					except tweepy.RateLimitError as r:
