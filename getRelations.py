@@ -30,7 +30,7 @@ def authenticate(credentials):
 		credentials["CONSUMER_SECRET"])
 
 def showProgress(progress, count, limit = False):
-	sys.stderr.write("\r[[" + str(round(float(progress) / count, 2)) + "%] [")
+	sys.stderr.write("\r[" + str(round(float(progress) / count, 2)) + "%] [")
 	for i in xrange(10):
 		if i < progress / count:
 			sys.stderr.write("==")
