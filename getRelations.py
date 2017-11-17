@@ -42,28 +42,52 @@ if __name__ == '__main__':
 	idfile = "data/" + category + "-" + subcat + "/uids"
 	users = {}
 	count = 0
+	errors = ""
 	with open(idfile, "r") as uids:
 		for uid in uids:
 			uid = uid.split("\n")[0]
-			users[uid] = count
+			users[uid] = []
 			count += 1
-	relations = [[0 for x in range(count)] for x in range(count)]
-	print relations
+	progress = 0
+	unirel = 0
 	for user in users:
-		following, followers = api.friends_ids(id=user), api.followers_ids(id=user)
-		print following
-		print followers
-		break
+		while True:
+			try:
+				followings, followers = str(api.friends_ids(id=user)), str(api.followers_ids(id=user))
+				for following in followings:
+					try:
+						if following in users:
+							users[user].append(following)
+							unirel += 1
+					except KeyError:
+						continue
+				for follower in followers:
+					try:
+						users[follower].append(user)
+						unirel += 1
+					except KeyError:
+						continue
+				sys.stderr.write("\r[[" + str(round(progress / count, 2)) + "%] [")
+				for i in xrange(10):
+					if i < progress / count:
+						sys.stderr.write("==")
+					else:
+						sys.stderr.write("  ")
+				sys.stderr.write("]           ")
+				break
+			except tweepy.RateLimitError as r:
+				sys.stderr.write("\r[" + str(round(progress / count, 2)) + "%] [RATE LIMIT EXCEEDED --- WAITING]            ")
+				time.sleep(60)
+			except tweepy.TweepError as e:
+				errors += e + "\n"
+		progress += 1
+	print "\r[100%] [COMPLETED]                                 "
+	print str(unirel) + " unidirectional relation" + ("s found" if unirel != 1 else " found")
+	output = "data/" + category + "-" + subcat + "/relations"
+	print "saving relations in " + output
+	with open(output, "w") as out:
+		for user in users:
+			out.write(user + "\t" + ",".join(users[user]) + "\n")
+	print "done."
+	print "\n" + errors
 	exit(0)
-	try:
-
-		print result
-	except tweepy.TweepError as e:
-		print e
-
-		# except tweepy.RateLimitError as r:
-		#	print "rate limit reached, waiting..."
-		#	time.sleep(60)
-		#		except tweepy.TweepError as e:
-		#			print e
-		#			break
