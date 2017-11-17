@@ -53,17 +53,17 @@ if __name__ == '__main__':
 	for user in users:
 		while True:
 			try:
-				followings, followers = str(api.friends_ids(id=user)), str(api.followers_ids(id=user))
+				followings, followers = api.friends_ids(id=user), api.followers_ids(id=user)
 				for following in followings:
 					try:
 						if following in users:
-							users[user].append(following)
+							users[user].append(str(following))
 							unirel += 1
 					except KeyError:
 						continue
 				for follower in followers:
 					try:
-						users[follower].append(user)
+						users[str(follower)].append(user)
 						unirel += 1
 					except KeyError:
 						continue
