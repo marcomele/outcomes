@@ -20,7 +20,7 @@ def getcredentials():
 	}
 	for key in credentials:
 		f = open(key + ".key", "r")
-		credentials[key] = f.readline()[0:-1]
+		credentials[key] = f.readline().split("\n")[0]
 	return credentials
 
 def authenticate(credentials):
@@ -44,7 +44,7 @@ if __name__ == '__main__':
 	auth = tweepy.OAuthHandler(credentials["CONSUMER_KEY"], credentials["CONSUMER_SECRET"])
 	auth.set_access_token(credentials["ACCESS_TOKEN"], credentials["ACCESS_SECRET"])
 
-	api = tweepy.API(auth)
+	api = tweepy.API(auth, retry_count = 3, wait_on_rate_limit = True)
 
 	category = "society"
 	subcat = "issues"
@@ -66,17 +66,13 @@ if __name__ == '__main__':
 	with open(outing, "w") as outfollowing:
 		with open(outer, "w") as outfollowers:
 			for user in users:
-				while True:
-					try:
-						followings, followers = api.friends_ids(id=user), api.followers_ids(id=user)
-						outfollowing.write(user + "\t" + ",".join(list(str(following) for following in followings)) + "\n")
-						outfollowers.write(user + "\t" + ",".join(list(str(follower) for follower in followers)) + "\n")
-						break
-					except tweepy.RateLimitError as r:
-						showProgress(progress, count, True)
-						time.sleep(15 * 60)
-					except tweepy.TweepError as e:
-						errors = str(e)
+				try:
+					followings, followers = api.friends_ids(id=user), api.followers_ids(id=user)
+					outfollowing.write(user + "\t" + ",".join(list(str(following) for following in followings)) + "\n")
+					outfollowers.write(user + "\t" + ",".join(list(str(follower) for follower in followers)) + "\n")
+					break
+				except tweepy.TweepError as e:
+					errors = str(e)
 				progress += 1
 				showProgress(progress, count, error = errors)
 	print "\n[COMPLETED]"
