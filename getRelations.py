@@ -10,6 +10,7 @@ except ImportError:
 	from urlparse import parse_qs
 import tweepy
 import sys
+import os
 
 def getcredentials():
 	credentials = {
@@ -76,4 +77,5 @@ if __name__ == '__main__':
 				progress += 1
 				showProgress(progress, count, error = errors)
 	print "\n[COMPLETED]"
+	os.system("notify-send getRelations.py Task\ completed")
 	exit(0)
