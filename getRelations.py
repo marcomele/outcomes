@@ -67,7 +67,7 @@ if __name__ == '__main__':
 						unirel += 1
 					except KeyError:
 						continue
-				sys.stderr.write("\r[[" + str(round(progress / count, 2)) + "%] [")
+				sys.stderr.write("\r[[" + str(round(float(progress) / count, 2)) + "%] [")
 				for i in xrange(10):
 					if i < progress / count:
 						sys.stderr.write("==")
@@ -76,8 +76,8 @@ if __name__ == '__main__':
 				sys.stderr.write("]           ")
 				break
 			except tweepy.RateLimitError as r:
-				sys.stderr.write("\r[" + str(round(progress / count, 2)) + "%] [RATE LIMIT EXCEEDED --- WAITING]            ")
-				time.sleep(60)
+				sys.stderr.write("\r[" + str(round(float(progress) / count, 2)) + "%] [RATE LIMIT EXCEEDED --- WAITING]            ")
+				time.sleep(15 * 60)
 			except tweepy.TweepError as e:
 				errors += e + "\n"
 		progress += 1
