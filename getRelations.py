@@ -30,7 +30,7 @@ def authenticate(credentials):
 		credentials["CONSUMER_SECRET"])
 
 def showProgress(progress, count, limit = False, error = ""):
-	sys.stderr.write("\r[%03d/%d]" % progress, count)
+	sys.stderr.write("\r[%03d/%d]" % (progress, count))
 	if limit:
 		sys.stderr.write(" rate limit exceeded, waiting...")
 	elif error:
