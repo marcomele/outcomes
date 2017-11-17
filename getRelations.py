@@ -62,7 +62,7 @@ if __name__ == '__main__':
 	outing = "data/" + category + "-" + subcat + "/followings"
 	print "saving followings in " + outing
 	outer = "data/" + category + "-" + subcat + "/followers"
-	print "saving followers in " + output
+	print "saving followers in " + outer
 	with open(outing, "w") as outfollowing:
 		with open(outer, "w") as outfollowers:
 			for user in users:
