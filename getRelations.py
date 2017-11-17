@@ -29,6 +29,15 @@ def authenticate(credentials):
 		credentials["CONSUMER_KEY"],
 		credentials["CONSUMER_SECRET"])
 
+def showProgress(progress, count, limit = False):
+	sys.stderr.write("\r[[" + str(round(float(progress) / count, 2)) + "%] [")
+	for i in xrange(10):
+		if i < progress / count:
+			sys.stderr.write("==")
+		else:
+			sys.stderr.write("  ")
+	sys.stderr.write("] [RARE LIMIT EXCEEDED] " if limit else "]                     ")
+
 if __name__ == '__main__':
 	# create authentication object
 	credentials = getcredentials()
@@ -50,44 +59,26 @@ if __name__ == '__main__':
 			count += 1
 	progress = 0
 	unirel = 0
-	for user in users:
-		while True:
-			try:
-				followings, followers = api.friends_ids(id=user), api.followers_ids(id=user)
-				for following in followings:
+	outing = "data/" + category + "-" + subcat + "/followings"
+	print "saving followings in " + outing
+	outer = "data/" + category + "-" + subcat + "/followers"
+	print "saving followers in " + output
+	with open(outing, "w") as outfollowing:
+		with open(outer, "w") as outfollowers:
+			for user in users:
+				while True:
 					try:
-						if following in users:
-							users[user].append(str(following))
-							unirel += 1
-					except KeyError:
-						continue
-				for follower in followers:
-					try:
-						users[str(follower)].append(user)
-						unirel += 1
-					except KeyError:
-						continue
-				sys.stderr.write("\r[[" + str(round(float(progress) / count, 2)) + "%] [")
-				for i in xrange(10):
-					if i < progress / count:
-						sys.stderr.write("==")
-					else:
-						sys.stderr.write("  ")
-				sys.stderr.write("]           ")
-				break
-			except tweepy.RateLimitError as r:
-				sys.stderr.write("\r[" + str(round(float(progress) / count, 2)) + "%] [RATE LIMIT EXCEEDED --- WAITING]            ")
-				time.sleep(15 * 60)
-			except tweepy.TweepError as e:
-				errors += e + "\n"
-		progress += 1
+						followings, followers = api.friends_ids(id=user), api.followers_ids(id=user)
+						outfollowing.write(user + "\t" + ",".join(followings) + "\n")
+						outfollowers.write(user + "\t" + ",".join(followers) + "\n")
+						showProgress(progress, count)
+						break
+					except tweepy.RateLimitError as r:
+						showProgress(progress, count, True)
+						time.sleep(15 * 60)
+					except tweepy.TweepError as e:
+						errors += str(e) + "\n"
+				progress += 1
 	print "\r[100%] [COMPLETED]                                 "
-	print str(unirel) + " unidirectional relation" + ("s found" if unirel != 1 else " found")
-	output = "data/" + category + "-" + subcat + "/relations"
-	print "saving relations in " + output
-	with open(output, "w") as out:
-		for user in users:
-			out.write(user + "\t" + ",".join(users[user]) + "\n")
-	print "done."
 	print "\n" + errors
 	exit(0)
