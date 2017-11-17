@@ -29,14 +29,14 @@ def authenticate(credentials):
 		credentials["CONSUMER_KEY"],
 		credentials["CONSUMER_SECRET"])
 
-def showProgress(progress, count, limit = False):
-	sys.stderr.write("\r[" + str(round(float(progress) / count, 2)) + "%] [")
-	for i in xrange(10):
-		if i < progress / count:
-			sys.stderr.write("==")
-		else:
-			sys.stderr.write("  ")
-	sys.stderr.write("] [RARE LIMIT EXCEEDED] " if limit else "]                     ")
+def showProgress(progress, count, limit = False, error = ""):
+	sys.stderr.write("\r[%03d/%d]" % progress, count)
+	if limit:
+		sys.stderr.write(" rate limit exceeded, waiting...")
+	elif error:
+		sys.stderr.write(" [ERROR] " + error + "\n")
+	else:
+		sys.stderr.write(" fetched                         \n")
 
 if __name__ == '__main__':
 	# create authentication object
@@ -77,8 +77,8 @@ if __name__ == '__main__':
 						showProgress(progress, count, True)
 						time.sleep(15 * 60)
 					except tweepy.TweepError as e:
-						errors += str(e) + "\n"
+						errors = str(e)
 				progress += 1
-	print "\r[100%] [COMPLETED]                                 "
-	print "\n" + errors
+				showProgress(progress, count, error = errors)
+	print "\n[COMPLETED]"
 	exit(0)
