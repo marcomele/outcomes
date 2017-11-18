@@ -45,21 +45,21 @@ if __name__ == '__main__':
 	auth = tweepy.OAuthHandler(credentials["CONSUMER_KEY"], credentials["CONSUMER_SECRET"])
 	auth.set_access_token(credentials["ACCESS_TOKEN"], credentials["ACCESS_SECRET"])
 
-	api = tweepy.API(auth, retry_count = 3, wait_on_rate_limit = True)
+	api = tweepy.API(auth, wait_on_rate_limit = True)
 
 	category = "society"
 	subcat = "issues"
 	idfile = "data/" + category + "-" + subcat + "/uids"
-	users = {}
+	users = []
 	count = 0
 	errors = ""
 	with open(idfile, "r") as uids:
 		for uid in uids:
-			uid = uid.split("\n")[0]
-			users[uid] = []
-			count += 1
+			user = uid.split("\n")[0]
+			if user:
+				users.append(user)
+				count += 1
 	progress = 0
-	unirel = 0
 	outing = "data/" + category + "-" + subcat + "/followings"
 	print "saving followings in " + outing
 	outer = "data/" + category + "-" + subcat + "/followers"
@@ -71,7 +71,6 @@ if __name__ == '__main__':
 					followings, followers = api.friends_ids(id=user), api.followers_ids(id=user)
 					outfollowing.write(user + "\t" + ",".join(list(str(following) for following in followings)) + "\n")
 					outfollowers.write(user + "\t" + ",".join(list(str(follower) for follower in followers)) + "\n")
-					break
 				except tweepy.TweepError as e:
 					errors = str(e)
 				progress += 1
