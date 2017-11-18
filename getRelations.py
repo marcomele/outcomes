@@ -71,10 +71,11 @@ if __name__ == '__main__':
 					followings, followers = api.friends_ids(id=user), api.followers_ids(id=user)
 					outfollowing.write(user + "\t" + ",".join(list(str(following) for following in followings)) + "\n")
 					outfollowers.write(user + "\t" + ",".join(list(str(follower) for follower in followers)) + "\n")
+					showProgress(progress, count)
 				except tweepy.TweepError as e:
 					errors = str(e)
+					showProgress(progress, count, error = errors)
 				progress += 1
-				showProgress(progress, count, error = errors)
 	print "\n[COMPLETED]"
 	os.system("notify-send getRelations.py Task\ completed")
 	exit(0)
