@@ -8,8 +8,9 @@ def clean(tweet):
     text = tweet["text"]
     text = re.sub(r'http\S+', '', text)
     text = re.sub(r'\&\S+;', '', text)
-    text.replace('#', '')
-    tweet["text"] = text
+    text = re.sub(r'\\u[0-9]+', '', text)
+    text = re.sub(r'@\S+', '', text)
+    tweet["text"] = text.replace('#', '')
     return tweet
 
 conf = SparkConf().setAppName("edu.uic.cs.cs594.fakenews.preprocessing.py")
